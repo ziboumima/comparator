@@ -1,4 +1,4 @@
-package com.github.hibou107.Comparator
+package com.github.hibou107.comparator
 
 import org.scalatest.{FlatSpec, Matchers}
 import ComparatorImplicits._
@@ -34,8 +34,27 @@ class ComparatorTests extends FlatSpec with Matchers {
   }
 
 
-
   it should "work with List" in {
+    Comparator.compare(List(1.0, 2.0), List(1.0, 2.0, 3.0)) shouldBe List(Diff(List(),SizeDiff(2,3)))
+    Comparator.compare(List(1.0, 2.0), List(1.0, 2.3)) shouldBe List(Diff(List("1"), DoubleDiff(2.0,2.3)))
+    Comparator.compare(List(1000.0, 2.0), List(999.0, 2.0)) shouldBe Nil // it must take into account acceptence error
+  }
+
+  it should "work with Map" in {
+    Comparator.compare(
+      Map("first" -> 1.0, "second" -> 2.0),
+      Map("first" -> 1.0, "second" -> 2.0)
+    ) shouldBe Nil
+
+    Comparator.compare(
+      Map("first" -> 1.0, "second" -> 2.0),
+      Map("first" -> 1.0, "third" -> 2.0)
+    ) shouldBe List(Diff(List(),KeyNotExist("third",Left)))
+
+    Comparator.compare(
+      Map("first" -> 1.0, "second" -> 2.0),
+      Map("first" -> 1.0, "second" -> 4.0)
+    ) shouldBe List(Diff(List("second"), DoubleDiff(2.0, 4.0)))
 
   }
 

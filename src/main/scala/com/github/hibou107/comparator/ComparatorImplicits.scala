@@ -1,4 +1,4 @@
-package com.github.hibou107.Comparator
+package com.github.hibou107.comparator
 
 object ComparatorImplicits {
 
@@ -55,4 +55,21 @@ object ComparatorImplicits {
         }
     }
   }
+  def comparator2[A1,A2](names: (String, String, String))(implicit comparator1: Comparator[A1], comparator2: Comparator[A2],
+                                                          err: AcceptanceError): Comparator[(A1,A2)] =
+    new Comparator[(A1,A2)] {
+      def compare(left: (A1,A2), right: (A1,A2))(implicit err: AcceptanceError): List[Diff] =
+        comparator1.compareWithPath(names._1, left._1, right._1) ++
+          comparator2.compareWithPath(names._2, left._2, right._2)
+    }
+
+
+  def comparator3[A1,A2,A3](names: (String, String, String, String))(implicit comparator1: Comparator[A1], comparator2: Comparator[A2], comparator3: Comparator[A3],
+                                                                     err: AcceptanceError): Comparator[(A1,A2,A3)] =
+    new Comparator[(A1,A2,A3)] {
+      def compare(left: (A1,A2,A3), right: (A1,A2,A3))(implicit err: AcceptanceError): List[Diff] =
+        comparator1.compareWithPath(names._1, left._1, right._1) ++
+          comparator2.compareWithPath(names._2, left._2, right._2) ++
+          comparator3.compareWithPath(names._3, left._3, right._3)
+    }
 }

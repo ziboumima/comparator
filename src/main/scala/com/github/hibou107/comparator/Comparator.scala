@@ -1,4 +1,4 @@
-package com.github.hibou107.Comparator
+package com.github.hibou107.comparator
 
 
 
@@ -17,7 +17,7 @@ case class Diff(paths: List[String], diff: ComparatorDiff)
 case class AcceptanceError(relative: Double, absolute: Double)
 
 
-trait Comparator[A] { self =>
+trait Comparator[-A] { self =>
   def compare(left: A, right: A)(implicit err: AcceptanceError): List[Diff]
 
   def compareWithPath(path: String, left: A, right: A)(implicit err: AcceptanceError): List[Diff] = {
