@@ -6,7 +6,7 @@ object Generator {
   }
 
   private def strGenerator(index: Int) = {
-    List.fill(index + 1)("String").mkString(", ")
+    List.fill(index)("String").mkString(", ")
   }
 
   private def comparatorStrGenerator(size: Int) = {
