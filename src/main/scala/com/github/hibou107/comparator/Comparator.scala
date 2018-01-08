@@ -1,7 +1,5 @@
 package com.github.hibou107.comparator
 
-
-
 sealed trait Side
 case object Left extends Side
 case object Right extends Side
@@ -11,11 +9,10 @@ sealed trait ComparatorDiff
 case class SizeDiff(left: Int, right: Int) extends ComparatorDiff
 case class DoubleDiff(left: Double, right: Double) extends ComparatorDiff
 case class KeyNotExist(key: String, side: Side) extends ComparatorDiff
-
+case object TypeDiff extends ComparatorDiff
 case class Diff(paths: List[String], diff: ComparatorDiff)
 
 case class AcceptanceError(relative: Double, absolute: Double)
-
 
 trait Comparator[-A] { self =>
   def compare(left: A, right: A)(implicit err: AcceptanceError): List[Diff]
@@ -36,7 +33,6 @@ object Comparator {
   def compare[A](left: A, right: A)(implicit comparator: Comparator[A], acceptanceError: AcceptanceError): List[Diff] =
     comparator.compare(left, right)
 }
-
 
 object Test {
   import ComparatorImplicits._

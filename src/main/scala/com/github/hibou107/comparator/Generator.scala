@@ -2,7 +2,7 @@ package com.github.hibou107.comparator
 
 object Generator {
   private def tupleGenerator(size: Int) = {
-    {(1 to size).map(n => s"A$n").mkString(",")}
+    { (1 to size).map(n => s"A$n").mkString(",") }
   }
 
   private def strGenerator(index: Int) = {
@@ -23,7 +23,7 @@ object Generator {
 
   private def generateOne(n: Int): String = {
     val tupled = tupleGenerator(n)
-      s"""|def comparator$n[$tupled](names: (${strGenerator(n)}))(implicit ${comparatorStrGenerator(n)},
+    s"""|def comparator$n[$tupled](names: (${strGenerator(n)}))(implicit ${comparatorStrGenerator(n)},
           |                                                   err: AcceptanceError): Comparator[($tupled)] =
           |    new Comparator[($tupled)] {
           |      def compare(left: ($tupled), right: ($tupled))(implicit err: AcceptanceError): List[Diff] =
@@ -41,7 +41,7 @@ object Generator {
   }
 
   def main(args: Array[String]): Unit = {
-    val x = generate(2, 3)
+    val x = generate(2, 20)
     println(x)
 
   }
