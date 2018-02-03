@@ -8,6 +8,7 @@ sealed trait ComparatorDiff
 
 case class SizeDiff(left: Int, right: Int) extends ComparatorDiff
 case class DoubleDiff(left: Double, right: Double) extends ComparatorDiff
+case class StringDiff(left: String, right: String) extends ComparatorDiff
 case class KeyNotExist(key: String, side: Side) extends ComparatorDiff
 case object TypeDiff extends ComparatorDiff
 case class Diff(paths: List[String], diff: ComparatorDiff)
@@ -30,6 +31,7 @@ trait Comparator[-A] { self =>
 }
 
 object Comparator {
+  def apply[A](implicit c: Comparator[A]): Comparator[A] = c
   def compare[A](left: A, right: A)(implicit comparator: Comparator[A], acceptanceError: AcceptanceError): List[Diff] =
     comparator.compare(left, right)
 }
