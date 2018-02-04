@@ -2,26 +2,31 @@ package com.github.hibou107.comparator
 
 object ComparatorImplicits {
 
-  implicit def orderedComparator[A](implicit ordered: Ordering[A]): Comparator[A] = new Comparator[A] {
+  def orderedComparator[A](implicit ordered: Ordering[A]): Comparator[A] = new Comparator[A] {
     override def compare(left: A, right: A)(implicit err: AcceptanceError): List[Diff] = {
-      (left, right) match {
-        case (left: Double, right: Double) =>
-          val abs = Math.abs(left - right)
-          val diff = Diff(Nil, DoubleDiff(left, right)) :: Nil
-          if (left == 0.0 || right == 0.0)
-            if (abs > err.absolute) diff else Nil
-          else {
-            val rel = abs / left
-            if (rel > err.relative) diff else Nil
-          }
-        case _ =>
-          if (ordered.equiv(left, right))
-            Nil
-          else
-            Diff(Nil, StringDiff(left.toString, right.toString)) :: Nil
+      if (ordered.equiv(left, right))
+        Nil
+      else
+        Diff(Nil, StringDiff(left.toString, right.toString)) :: Nil
+    }
+  }
+
+  implicit val doubleComparator: Comparator[Double] = new Comparator[Double] {
+    override def compare(left: Double, right: Double)(implicit err: AcceptanceError): List[Diff] = {
+      val abs = Math.abs(left - right)
+      val diff = Diff(Nil, DoubleDiff(left, right)) :: Nil
+      if (left == 0.0 || right == 0.0)
+        if (abs > err.absolute) diff else Nil
+      else {
+        val rel = abs / left
+        if (rel > err.relative) diff else Nil
       }
     }
   }
+
+  implicit val IntComparator: Comparator[Int] = orderedComparator[Int]
+  implicit val LongComparator: Comparator[Long] = orderedComparator[Long]
+  implicit val StringComparator: Comparator[String] = orderedComparator[String]
 
   implicit def seqComprator[A](implicit c: Comparator[A]): Comparator[Seq[A]] = new Comparator[Seq[A]] {
     def compare(left: Seq[A], right: Seq[A])(implicit err: AcceptanceError): List[Diff] = {

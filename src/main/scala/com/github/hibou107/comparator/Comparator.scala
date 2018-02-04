@@ -35,13 +35,3 @@ object Comparator {
   def compare[A](left: A, right: A)(implicit comparator: Comparator[A], acceptanceError: AcceptanceError): List[Diff] =
     comparator.compare(left, right)
 }
-
-object Test {
-  import ComparatorImplicits._
-  implicit val acceptanceError: AcceptanceError = AcceptanceError(1e-2, 1e-5)
-  case class MyClass(first: Double, second: Double)
-  val comp: Comparator[MyClass] = comparator2[Double, Double](("first", "second")).contramap(x => MyClass.unapply(x).get)
-  def main(args: Array[String]): Unit = {
-    println(comp.compare(MyClass(2, 2), MyClass(1, 3)))
-  }
-}

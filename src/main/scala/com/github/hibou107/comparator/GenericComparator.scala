@@ -2,6 +2,7 @@ package com.github.hibou107.comparator
 
 import shapeless.labelled.FieldType
 import shapeless.{ ::, HList, HNil, LabelledGeneric, Lazy, Witness }
+import shapeless.syntax.std.tuple._
 
 object GenericComparator {
 
