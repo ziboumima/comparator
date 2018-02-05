@@ -9,7 +9,8 @@ class ComparatorTests extends FlatSpec with Matchers {
   implicit val acceptanceError: AcceptanceError = AcceptanceError(1e-2, 1e-5)
 
   it should "work with Tuple" in {
-    println(Comparator[(Double, Double, Double)].compare((1, 2, 3), (2, 3, 4)))
+    Comparator.compare(((1, "x"), 2, 3), ((1, "y"), 2, 3)).head shouldBe
+      Diff(List("_1", "_2"), StringDiff("x", "y"))
   }
 
   it should "work with List" in {
@@ -54,7 +55,7 @@ class ComparatorTests extends FlatSpec with Matchers {
           case (Empty, Empty)                   => Nil
           case (Leaf(l), Leaf(r))               => doubleComparator.compare(l, r)(err)
           case (Branch(ll, lr), Branch(rl, rr)) => compareWithPath("left", ll, rl)(err) ++ compareWithPath("right", lr, rr)(err)
-          case _                                => Diff(Nil, TypeDiff) :: Nil
+          case (x, y)                           => Diff(Nil, TypeDiff(x.toString, y.toString)) :: Nil
 
         }
     }
