@@ -2,7 +2,7 @@ package com.github.hibou107.comparator
 
 import org.scalatest.{ FlatSpec, Matchers }
 import ComparatorImplicits._
-
+import GenericComparator._
 
 class ComparatorTests extends FlatSpec with Matchers {
 

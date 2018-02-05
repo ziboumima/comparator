@@ -30,7 +30,7 @@ object ComparatorImplicits {
 
   implicit def seqComprator[A](implicit c: Comparator[A]): Comparator[Seq[A]] = new Comparator[Seq[A]] {
     def compare(left: Seq[A], right: Seq[A])(implicit err: AcceptanceError): List[Diff] = {
-      if (left.size != right.size)
+      if (left.lengthCompare(right.size) != 0)
         Diff(Nil, SizeDiff(left.size, right.size)) :: Nil
       else {
         left.zip(right).zipWithIndex.flatMap {
