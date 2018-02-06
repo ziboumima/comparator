@@ -16,7 +16,7 @@ class ComparatorTests extends FlatSpec with Matchers {
   it should "work with List" in {
     Comparator.compare(List(1.0, 2.0), List(1.0, 2.0, 3.0)) shouldBe List(Diff(List(), SizeDiff(2, 3)))
     Comparator.compare(List(1.0, 2.0), List(1.0, 2.3)) shouldBe List(Diff(List("1"), DoubleDiff(2.0, 2.3)))
-    Comparator.compare(List(1000.0, 2.0), List(999.0, 2.0)) shouldBe Nil // it must take into account acceptence error
+    Comparator.compare(List(1000.0, 2.0), List(999.0, 2.0)) shouldBe Nil // it must take into account acceptance error
   }
 
   it should "compare case class" in {
@@ -46,24 +46,22 @@ class ComparatorTests extends FlatSpec with Matchers {
   it should "works in special case" in {
     sealed trait Tree
     case class Branch(left: Tree, right: Tree) extends Tree
-    case object Empty extends Tree
-    case class Leaf(value: Double) extends Tree
+    case class Leaf(value: Option[Double]) extends Tree
 
-    implicit def treeComparator(implicit doubleComparator: Comparator[Double]): Comparator[Tree] = new Comparator[Tree] {
+    implicit def treeComparator: Comparator[Tree] = new Comparator[Tree] {
       def compare(left: Tree, right: Tree)(implicit err: AcceptanceError): List[Diff] =
         (left, right) match {
-          case (Empty, Empty)                   => Nil
-          case (Leaf(l), Leaf(r))               => doubleComparator.compare(l, r)(err)
+          case (Leaf(l), Leaf(r))               => Comparator.compare(l, r)(implicitly, err)
           case (Branch(ll, lr), Branch(rl, rr)) => compareWithPath("left", ll, rl)(err) ++ compareWithPath("right", lr, rr)(err)
           case (x, y)                           => Diff(Nil, TypeDiff(x.toString, y.toString)) :: Nil
 
         }
     }
 
-    val left = Branch(Leaf(1.0), Branch(Empty, Leaf(2.0)))
-    val right = Branch(Leaf(1.0), Branch(Empty, Leaf(3.0)))
+    val left = Branch(Leaf(Some(1.0)), Branch(Leaf(None), Leaf(Some(2.0))))
+    val right = Branch(Leaf(Some(1.0)), Branch(Leaf(None), Leaf(Some(3.0))))
 
-    Comparator.compare(left, right) shouldBe List(Diff(List("right", "right"), DoubleDiff(2.0, 3.0)))
+    Comparator.compare[Tree](left, right) shouldBe List(Diff(List("right", "right"), DoubleDiff(2.0, 3.0)))
 
   }
 

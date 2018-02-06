@@ -1,5 +1,7 @@
 package com.github.hibou107.comparator
 
+import shapeless.{ :+:, CNil, Coproduct, HList, HNil, TypeClass, TypeClassCompanion }
+
 object ComparatorImplicits {
 
   def orderedComparator[A](implicit ordered: Ordering[A]): Comparator[A] = new Comparator[A] {
@@ -39,6 +41,17 @@ object ComparatorImplicits {
         }.toList
       }
     }
+  }
+
+  implicit def optionComparator[A](implicit c: Comparator[A]): Comparator[Option[A]] = new Comparator[Option[A]] {
+    def compare(left: Option[A], right: Option[A])(implicit err: AcceptanceError): List[Diff] = {
+      (left, right) match {
+        case (Some(l), Some(r)) => c.compare(l, r)
+        case (None, None)       => Nil
+        case (x, y)             => Diff(Nil, TypeDiff(x.toString, y.toString)) :: Nil
+      }
+    }
+
   }
 
   implicit def mapComparator[K, V](implicit c: Comparator[V]): Comparator[Map[K, V]] = new Comparator[Map[K, V]] {
