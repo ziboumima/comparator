@@ -15,10 +15,10 @@ case class Diff(paths: List[String], diff: ComparatorDiff)
 
 case class AcceptanceError(relative: Double, absolute: Double)
 
-trait Comparator[-A] { self =>
-  def compare(left: A, right: A)(implicit err: AcceptanceError): List[Diff]
+trait Comparator[A] { self =>
+  def compare(left: A, right: A): List[Diff]
 
-  def compareWithPath(path: String, left: A, right: A)(implicit err: AcceptanceError): List[Diff] = {
+  def compareWithPath(path: String, left: A, right: A): List[Diff] = {
     val temp = compare(left, right)
     temp.map { diff => diff.copy(paths = path :: diff.paths)
     }
@@ -26,7 +26,7 @@ trait Comparator[-A] { self =>
 
   def contramap[B](f: B => A): Comparator[B] {
   } = new Comparator[B] {
-    def compare(left: B, right: B)(implicit err: AcceptanceError): List[Diff] = self.compare(f(left), f(right))
+    def compare(left: B, right: B): List[Diff] = self.compare(f(left), f(right))
   }
 }
 

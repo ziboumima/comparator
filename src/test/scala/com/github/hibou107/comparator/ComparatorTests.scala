@@ -3,6 +3,7 @@ package com.github.hibou107.comparator
 import org.scalatest.{ FlatSpec, Matchers }
 import ComparatorImplicits._
 import GenericComparator._
+import shapeless._
 
 class ComparatorTests extends FlatSpec with Matchers {
 
@@ -48,21 +49,40 @@ class ComparatorTests extends FlatSpec with Matchers {
     case class Branch(left: Tree, right: Tree) extends Tree
     case class Leaf(value: Option[Double]) extends Tree
 
-    implicit def treeComparator: Comparator[Tree] = new Comparator[Tree] {
-      def compare(left: Tree, right: Tree)(implicit err: AcceptanceError): List[Diff] =
-        (left, right) match {
-          case (Leaf(l), Leaf(r))               => Comparator.compare(l, r)(implicitly, err)
-          case (Branch(ll, lr), Branch(rl, rr)) => compareWithPath("left", ll, rl)(err) ++ compareWithPath("right", lr, rr)(err)
-          case (x, y)                           => Diff(Nil, TypeDiff(x.toString, y.toString)) :: Nil
-
-        }
-    }
+//    implicit def treeComparator: Comparator[Tree] = new Comparator[Tree] {
+//      def compare(left: Tree, right: Tree)(implicit err: AcceptanceError): List[Diff] =
+//        (left, right) match {
+//          case (Leaf(l), Leaf(r))               => Comparator.compare(l, r)(implicitly, err)
+//          case (Branch(ll, lr), Branch(rl, rr)) => compareWithPath("left", ll, rl)(err) ++ compareWithPath("right", lr, rr)(err)
+//          case (x, y)                           => Diff(Nil, TypeDiff(x.toString, y.toString)) :: Nil
+//
+//        }
+//    }
+    import scala.reflect.runtime.universe._
 
     val left = Branch(Leaf(Some(1.0)), Branch(Leaf(None), Leaf(Some(2.0))))
     val right = Branch(Leaf(Some(1.0)), Branch(Leaf(None), Leaf(Some(3.0))))
-
+    println(reify(Comparator[Tree]))
     Comparator.compare[Tree](left, right) shouldBe List(Diff(List("right", "right"), DoubleDiff(2.0, 3.0)))
 
   }
 
+  it should "works with coProduct" in {
+    import scala.reflect.runtime.universe._
+    sealed trait People {
+      val name: String
+    }
+    case class Man(name: String) extends People
+    case class Woman(name: String) extends People
+    val man = Man("Man")
+    val woman = Woman("Woman")
+    println(LabelledGeneric[People].to(man))
+    println(LabelledGeneric[People].to(woman))
+//    println(Comparator[People])
+//    println(reify(Comparator[People]))
+
+  }
+
+
 }
+
