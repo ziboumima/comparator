@@ -34,7 +34,10 @@ class ComparatorTests extends FlatSpec with Matchers {
     Comparator.compare(
       Map("first" -> 1.0, "second" -> 2.0),
       Map("first" -> 1.0, "third" -> 2.0)
-    ) shouldBe List(Diff(List(), KeyNotExist("third", Left)))
+    ) shouldBe List(
+        Diff(List(), KeyNotExist("third", Left)),
+        Diff(List(), KeyNotExist("second", Right))
+      )
 
     Comparator.compare(
       Map("first" -> 1.0, "second" -> 2.0),

@@ -1,7 +1,5 @@
 package com.github.hibou107.comparator
 
-import shapeless.{ :+:, CNil, Coproduct, HList, HNil, TypeClass, TypeClassCompanion }
-
 object ComparatorImplicits {
 
   def orderedComparator[A](implicit ordered: Ordering[A]): Comparator[A] = (left: A, right: A) => {
@@ -46,16 +44,14 @@ object ComparatorImplicits {
   }
 
   implicit def mapComparator[K, V](implicit c: Comparator[V]): Comparator[Map[K, V]] = (left: Map[K, V], right: Map[K, V]) => {
-    val keydiff = right.keySet -- left.keySet
-    if (keydiff.nonEmpty)
-      keydiff.map(diff => Diff(Nil, KeyNotExist(diff.toString, Left))).toList
-    else
-      left.foldLeft(List.empty[Diff]) {
-        case (currentResult, (leftKey, leftVal)) =>
-          val temp = right.get(leftKey).fold(Diff(Nil, KeyNotExist(leftKey.toString, Right)) :: Nil) { rightVal =>
-            c.compareWithPath(leftKey.toString, leftVal, rightVal)
-          }
-          temp ++ currentResult
-      }
+    val leftMissingKeys = (right.keySet -- left.keySet).map(diff => Diff(Nil, KeyNotExist(diff.toString, Left))).toList
+    val rightMissingKeys = (left.keySet -- right.keySet).map(diff => Diff(Nil, KeyNotExist(diff.toString, Right))).toList
+    val innerValueDiffs = right.keySet.intersect(left.keySet).foldLeft(List.empty[Diff]) {
+      case (accumulator, (key)) =>
+        val diffs = c.compareWithPath(key.toString, left(key), right(key))
+        diffs ++ accumulator
+    }
+
+    leftMissingKeys ++ rightMissingKeys ++ innerValueDiffs
   }
 }
